@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f4f6f9;
+            color: #243b55;
+        }
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 11px 20px;
+            background: #243b55;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #c62828;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Edit Book</h1>
+
+    {% for error in errors %}
+        <p class="error">{{ error }}</p>
+    {% endfor %}
+
+    <form method="POST"
+          action="{{ url_for('edit_book', book_id=book.book_id) }}" enctype="multipart/form-data">
+
+        <p><strong>Book ID:</strong> {{ book.book_id }}</p>
+
+        <label for="title">Book Title</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            maxlength="100"
+            value="{{ book.title }}"
+            required
+        >
+
+        <label for="price">Price</label>
+        <input
+            type="number"
+            id="price"
+            name="price"
+            min="0"
+            step="0.01"
+            required
+            value="{{ book.price if book.price is not none else '' }}"
+        >
+
+<label for="cover_image">Book Cover Image</label>
+
+{% if book.cover_filename %}
+    <p>Current cover:</p>
+    <img
+        src="{{ url_for('static', filename='uploads/' ~ book.cover_filename) }}"
+        alt="Current book cover"
+        style="width: 100px; height: 140px; object-fit: contain;"
+    >
+{% endif %}
+
+<input
+    type="file"
+    id="cover_image"
+    name="cover_image"
+    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+>
+
+<p>Choose a new image to replace the current cover. Leave empty to keep it.</p>
+
+        <label for="author_id">Author</label>
+        <select id="author_id" name="author_id" required>
+            {% for author in authors %}
+                <option
+                    value="{{ author.author_id }}"
+                    {% if author.author_id == book.author_id %}selected{% endif %}
+                >
+                    {{ author.name }} (ID: {{ author.author_id }})
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <p><a href="{{ url_for('library') }}">Back to Library</a></p>
+</body>
+</html>

@@ -1,0 +1,40 @@
+DROP DATABASE IF EXISTS company;
+CREATE DATABASE company;
+USE company;
+
+CREATE TABLE EMPLOYEE (
+    ssn VARCHAR(9) PRIMARY KEY,
+    fname VARCHAR(30) NOT NULL,
+    lname VARCHAR(30) NOT NULL,
+    bdate DATE,
+    address VARCHAR(100),
+    gender CHAR(1),
+    salary DECIMAL(10,2),
+    Dno INT
+);
+
+CREATE TABLE DEPARTMENT (
+    Dnumber INT PRIMARY KEY,
+    Dname VARCHAR(50) NOT NULL,
+    mgr_ssn VARCHAR(9),
+    mgr_start_date DATE
+);
+
+CREATE TABLE PROJECT (
+    Pnumber INT PRIMARY KEY,
+    Pname VARCHAR(50) NOT NULL,
+    Plocation VARCHAR(50),
+    Dno INT
+);
+
+ALTER TABLE EMPLOYEE
+ADD CONSTRAINT fk_employee_department
+FOREIGN KEY (Dno) REFERENCES DEPARTMENT(Dnumber);
+
+ALTER TABLE DEPARTMENT
+ADD CONSTRAINT fk_department_manager
+FOREIGN KEY (mgr_ssn) REFERENCES EMPLOYEE(ssn);
+
+ALTER TABLE PROJECT
+ADD CONSTRAINT fk_project_department
+FOREIGN KEY (Dno) REFERENCES DEPARTMENT(Dnumber);

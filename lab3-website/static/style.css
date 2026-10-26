@@ -1,0 +1,76 @@
+
+/* Modern button design */
+button,
+input[type="submit"],
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 22px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+    transition: all 0.2s ease;
+}
+
+button:hover,
+input[type="submit"]:hover,
+.btn:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+    transform: translateY(-2px);
+}
+
+button:active,
+input[type="submit"]:active,
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+}
+
+button:focus-visible,
+input[type="submit"]:focus-visible,
+.btn:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.6);
+    outline-offset: 3px;
+}
+
+button:disabled,
+input[type="submit"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Blue buttons: Add Book, Add Author, Edit */
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    color: #fff;
+}
+
+/* Red buttons: Logout and Delete */
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.18);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
+    transform: translateY(-2px);
+}

@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        h1, h2 {
+            color: #243b55;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .navigation form,
+        td form {
+            display: inline;
+            margin: 0;
+        }
+
+        a {
+            color: #1769aa;
+            margin-right: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-bottom: 35px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        th, td {
+            border: 1px solid #e0e5eb;
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #243b55;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f0f3f7;
+        }
+
+        td img {
+            display: block;
+            border-radius: 6px;
+        }
+
+        /* Add buttons: blue */
+        .btn,
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+            transition: background 0.2s ease,
+                        transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .btn:hover,
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        /* Delete and Logout buttons: red */
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 17px;
+            border: none;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.18);
+            transition: background 0.2s ease,
+                        transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #93c5fd;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                margin: 20px auto;
+                padding: 0 12px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .navigation {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Library Management</h1>
+    <p>Welcome, {{ name }}!</p>
+
+    <div class="navigation">
+        <a href="{{ url_for('add_author') }}"
+           class="btn btn-primary">
+            Add Author
+        </a>
+
+        <a href="{{ url_for('add_book') }}"
+           class="btn btn-primary">
+            Add Book
+        </a>
+
+        <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit" class="btn-danger">
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- AUTHORS TABLE -->
+    <h2>Authors</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Author ID</th>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Photo</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for author in authors %}
+            <tr>
+                <td>{{ author.author_id }}</td>
+                <td>{{ author.name }}</td>
+                <td>{{ author.country or '' }}</td>
+
+                <td>
+                    {% if author.photo_filename %}
+                        <img
+                            src="{{ url_for('static', filename='uploads/' ~ author.photo_filename) }}"
+                            alt="Photo of {{ author.name }}"
+                            width="90"
+                            height="90"
+                            style="object-fit: cover; border-radius: 50%;"
+                        >
+                    {% else %}
+                        No photo
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="{{ url_for('edit_author', author_id=author.author_id) }}"  class="btn btn-primary">
+                        Edit
+                    </a>
+
+                    <form
+                        action="{{ url_for('delete_author', author_id=author.author_id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure? Deleting this author will also delete their books.');"
+                    >
+                        <button type="submit" class="btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            {% else %}
+            <tr>
+                <td colspan="5">No authors found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- BOOKS TABLE -->
+    <h2>Books</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Cover</th>
+                <th>Price</th>
+                <th>Author ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.book_id }}</td>
+                <td>{{ book.title }}</td>
+
+                <td>
+                    {% if book.cover_filename %}
+                        <img
+                            src="{{ url_for('static', filename='uploads/' ~ book.cover_filename) }}"
+                            alt="Cover of {{ book.title }}"
+                            width="90"
+                            height="120"
+                            style="object-fit: contain;"
+                        >
+                    {% else %}
+                        No cover
+                    {% endif %}
+                </td>
+
+                <td>{{ book.price }}</td>
+                <td>{{ book.author_id }}</td>
+
+                <td>
+                    <a href="{{ url_for('edit_book', book_id=book.book_id) }}"  class="btn btn-primary">
+                        Edit
+                    </a>
+
+                    <form
+                        action="{{ url_for('delete_book', book_id=book.book_id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this book?');"
+                    >
+                        <button type="submit" class="btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            {% else %}
+            <tr>
+                <td colspan="6">No books found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

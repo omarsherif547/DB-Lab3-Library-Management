@@ -1,0 +1,11 @@
+.venv/
+venv/
+.env
+**/.env
+!**/.env.example
+__pycache__/
+*.pyc
+session_cache/
+**/session_cache/
+.vscode/
+Website/LAB3-website/
