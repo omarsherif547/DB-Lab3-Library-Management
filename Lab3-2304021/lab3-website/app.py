@@ -865,11 +865,8 @@ def delete_book(book_id):
         connection.close()
 
     return redirect(url_for("library"))
-
-
 # =====================================================
 # RUN APPLICATION
 # =====================================================
-
 if __name__ == "__main__":
     app.run(debug=True)
