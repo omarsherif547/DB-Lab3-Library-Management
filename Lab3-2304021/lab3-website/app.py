@@ -48,6 +48,19 @@ def allowed_image(filename):
     )
 
 
+def delete_uploaded_file(filename):
+    """Delete an uploaded image safely; ignore missing or invalid filenames."""
+    if not filename or os.path.basename(filename) != filename:
+        return
+
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    except OSError:
+        app.logger.exception("Could not delete uploaded file: %s", filename)
+
+
 # =====================================================
 # 2. MYSQL DATABASE CONNECTION
 # =====================================================
@@ -504,13 +517,39 @@ def delete_author(author_id):
         return redirect(url_for("login"))
 
     connection = get_db()
+    image_filenames = []
+
     try:
         with connection.cursor() as cursor:
+            # Collect the author's photo and related book covers before
+            # ON DELETE CASCADE removes the related BOOK rows.
             cursor.execute(
-                "DELETE FROM AUTHOR WHERE author_id = %s",
+                "SELECT photo_filename FROM AUTHOR WHERE author_id = %s",
                 (author_id,),
             )
+            author = cursor.fetchone()
+
+            if author:
+                if author.get("photo_filename"):
+                    image_filenames.append(author["photo_filename"])
+
+                cursor.execute(
+                    "SELECT cover_filename FROM BOOK WHERE author_id = %s",
+                    (author_id,),
+                )
+                image_filenames.extend(
+                    book["cover_filename"]
+                    for book in cursor.fetchall()
+                    if book.get("cover_filename")
+                )
+
+                cursor.execute(
+                    "DELETE FROM AUTHOR WHERE author_id = %s",
+                    (author_id,),
+                )
+
         connection.commit()
+
     except pymysql.err.IntegrityError:
         connection.rollback()
         return (
@@ -523,6 +562,10 @@ def delete_author(author_id):
         raise
     finally:
         connection.close()
+
+    # Delete files only after the database deletion succeeds.
+    for filename in image_filenames:
+        delete_uploaded_file(filename)
 
     return redirect(url_for("library"))
 
@@ -851,18 +894,33 @@ def delete_book(book_id):
         return redirect(url_for("login"))
 
     connection = get_db()
+    cover_filename = None
+
     try:
         with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT cover_filename FROM BOOK WHERE book_id = %s",
+                (book_id,),
+            )
+            book = cursor.fetchone()
+
+            if book:
+                cover_filename = book.get("cover_filename")
+
             cursor.execute(
                 "DELETE FROM BOOK WHERE book_id = %s",
                 (book_id,),
             )
         connection.commit()
+
     except Exception:
         connection.rollback()
         raise
     finally:
         connection.close()
+
+    # Remove the cover only after the database deletion succeeds.
+    delete_uploaded_file(cover_filename)
 
     return redirect(url_for("library"))
 # =====================================================
